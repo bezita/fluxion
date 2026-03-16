@@ -19,10 +19,16 @@ CaptivePortalGatewayNetwork=${CaptivePortalGatewayAddress%.*}
 # ============== < Captive Portal Subroutines > ============== #
 # ============================================================ #
 captive_portal_unset_jammer_interface() {
-  CaptivePortalJammerInterfaceOriginal=""
+  if [ ! "$CaptivePortalJammerInterface" ]; then
+    CaptivePortalJammerInterfaceOriginal=""
+    return 1
+  fi
 
-  if [ ! "$CaptivePortalJammerInterface" ]; then return 1; fi
+  # Deallocate the interface from FluxionInterfaces so it can be reused.
+  fluxion_deallocate_interface "$CaptivePortalJammerInterface" 2>/dev/null
+
   CaptivePortalJammerInterface=""
+  CaptivePortalJammerInterfaceOriginal=""
 
   # Check if we're automatically selecting the interface & skip
   # this one if so to take the user back properly.
@@ -72,10 +78,11 @@ captive_portal_ap_interfaces() {
 }
 
 captive_portal_unset_ap_interface() {
-  CaptivePortalAccessPointInterfaceOriginal=""
+  if [ ! "$CaptivePortalAccessPointInterface" ]; then
+    CaptivePortalAccessPointInterfaceOriginal=""
+    return 1
+  fi
 
-  if [ ! "$CaptivePortalAccessPointInterface" ]; then return 1; fi
-  
   # Check if it's a virtual interface (ends with 'v')
   if [[ "$CaptivePortalAccessPointInterface" == *v ]]; then
     if [ -n "$CaptivePortalAccessPointInterface" ] && interface_physical "$CaptivePortalAccessPointInterface"; then
@@ -84,8 +91,13 @@ captive_portal_unset_ap_interface() {
         echo "Warning: Unable to remove virtual interface $CaptivePortalAccessPointInterface" > $FLUXIONOutputDevice
       fi
     fi
+  else
+    # Non-virtual: deallocate the interface from FluxionInterfaces so it can be reused.
+    fluxion_deallocate_interface "$CaptivePortalAccessPointInterface" 2>/dev/null
   fi
+
   CaptivePortalAccessPointInterface=""
+  CaptivePortalAccessPointInterfaceOriginal=""
 }
 
 captive_portal_set_ap_interface() {
@@ -1144,10 +1156,6 @@ captive_portal_generic() {
     </body>
 </html>" >"$FLUXIONWorkspacePath/captive_portal/index.html"
 
-if [ $FLUXIONEnable5GHZ -eq 1 ]; then
-    cp -r "$FLUXIONPath/attacks/Captive Portal/deauth-ng.py" "$FLUXIONWorkspacePath/captive_portal/deauth-ng.py"
-    chmod +x "$FLUXIONWorkspacePath/captive_portal/deauth-ng.py"
-fi
 
 }
 
@@ -1438,11 +1446,7 @@ captive_portal_start_jammer_service() {
     sleep 1
   fi
 
-  if [ $FLUXIONEnable5GHZ -eq 1 ]; then
-    fluxion_window_open CaptivePortalJammerServiceXtermPID \
-      "FLUXION AP Jammer Service [$FluxionTargetSSID]" "$BOTTOMRIGHT" "black" "#FF0009" \
-      "$FLUXIONWorkspacePath/captive_portal/deauth-ng.py -i $CaptivePortalJammerInterface -f 5 -c $FluxionTargetChannel -a $FluxionTargetMAC"
-  elif [[ $option_deauth -eq 1 ]]; then
+  if [[ $option_deauth -eq 1 ]]; then
     fluxion_window_open CaptivePortalJammerServiceXtermPID \
       "FLUXION AP Jammer Service [$FluxionTargetSSID]" "$BOTTOMRIGHT" "black" "#FF0009" \
       "mdk4 $CaptivePortalJammerInterface d -c $FluxionTargetChannel -b \"$FLUXIONWorkspacePath/mdk4_blacklist.lst\""

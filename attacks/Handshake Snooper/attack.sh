@@ -72,6 +72,7 @@ handshake_snooper_arbiter_daemon() {
     now=$(env -i date '+%H:%M:%S')
     echo -e "[$now] $(io_dynamic_output $HandshakeSnooperSnoopingForNSecondsNotice)" >> \
       "$FLUXIONWorkspacePath/handshake_snooper.log"
+    fluxion_status "SNOOPING interval=${HandshakeSnooperVerifierInterval}s"
     sleep $HandshakeSnooperVerifierInterval &
     wait $! # Using wait to asynchronously catch flags while waiting.
 
@@ -129,6 +130,7 @@ handshake_snooper_arbiter_daemon() {
   # Move handshake to storage if one was acquired.
   mv "$FLUXIONWorkspacePath/capture/recent.cap" \
     "$FLUXIONPath/attacks/Handshake Snooper/handshakes/$FluxionTargetSSIDClean-$FluxionTargetMAC.cap"
+  fluxion_status "HANDSHAKE_CAPTURED path=$FLUXIONPath/attacks/Handshake Snooper/handshakes/$FluxionTargetSSIDClean-$FluxionTargetMAC.cap"
 
   # Write success flag so the main window polling loop can detect completion
   # and update its display without waiting for manual user input.
@@ -270,10 +272,18 @@ handshake_snooper_set_deauthenticator_identifier() {
 }
 
 handshake_snooper_unset_jammer_interface() {
-  HandshakeSnooperJammerInterfaceOriginal=""
+  if [ ! "$HandshakeSnooperJammerInterface" ]; then
+    HandshakeSnooperJammerInterfaceOriginal=""
+    return 1
+  fi
 
-  if [ ! "$HandshakeSnooperJammerInterface" ]; then return 1; fi
+  # Deallocate the interface from FluxionInterfaces so it can be reused.
+  # Pass the renamed interface (e.g. fluxwl0) — that's the current real name
+  # in /sys/class/net, which fluxion_deallocate_interface needs for interface_is_real.
+  fluxion_deallocate_interface "$HandshakeSnooperJammerInterface" 2>/dev/null
+
   HandshakeSnooperJammerInterface=""
+  HandshakeSnooperJammerInterfaceOriginal=""
 
   # Check if we're automatically selecting the interface & skip
   # this one if so to take the user back properly.

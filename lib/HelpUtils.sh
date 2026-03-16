@@ -105,6 +105,11 @@ fluxion_help(){
                 Select the target network based on the ESSID. In auto mode,
                 used to filter scan results to the matching network.
 
+         --band <bg|a|abg>
+                Wireless band to scan. bg = 2.4 GHz, a = 5 GHz,
+                abg = both. Default is bg. Overrides auto-detection
+                from -c. Passed directly to airodump-ng --band.
+
          -c <channel>
                 Indicate the channel(s) to listen to. In auto mode, the
                 scanner is restricted to these channels.
@@ -133,6 +138,9 @@ fluxion_help(){
 
          # List networks on channel 6 only:
          sudo ./fluxion.sh -m --scan-only --scan-time 30 -c 6
+
+         # Scan both 2.4 GHz and 5 GHz bands:
+         sudo ./fluxion.sh --scan-only --scan-time 30 --band abg
 
          # Headless, non-interactive, 15-second scan:
          sudo ./fluxion.sh -m --auto -l en --scan-time 15
