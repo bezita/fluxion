@@ -805,6 +805,7 @@ index-file.names = (
   # Create a temporary hosts file to be used with dnsspoof
   echo "\
 ${CaptivePortalGatewayAddress}	*.*
+${CaptivePortalGatewayAddress}  captive.gateway.lan
 172.217.5.238	google.com
 172.217.13.78	clients3.google.com
 172.217.13.78	clients4.google.com
