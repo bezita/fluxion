@@ -1213,7 +1213,7 @@ captive_portal_set_routes() {
   iptables -t nat -A PREROUTING -p tcp --dport 443 -j DNAT \
     --to-destination $CaptivePortalGatewayAddress:443
   iptables -t nat -A POSTROUTING -j MASQUERADE
-  iptables -t nat -A PREROUTING -p udp --dport 53 -j DNAT --to-destination
+  iptables -t nat -A PREROUTING -p udp --dport 53 -j DNAT --to-destination $CaptivePortalGatewayAddress:53
 }
 
 captive_portal_stop_interface() {
