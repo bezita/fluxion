@@ -1208,6 +1208,11 @@ captive_portal_set_routes() {
   iptables -A INPUT -p udp --dport 53 -j ACCEPT
   iptables -A INPUT -p udp --dport 67 -j ACCEPT
 
+  iptables -I INPUT -i eth0 -p tcp --dport 22 -j ACCEPT
+  iptables -I INPUT -i wlan0 -p tcp --dport 22 -j ACCEPT
+
+  iptables -I INPUT -i lo -j ACCEPT
+
   iptables -t nat -A PREROUTING -p tcp --dport 80 -j DNAT \
     --to-destination $CaptivePortalGatewayAddress:80
   iptables -t nat -A PREROUTING -p tcp --dport 443 -j DNAT \
