@@ -90,6 +90,8 @@ A Linux-based operating system. We recommend Kali Linux 2025.4. An external wifi
 
 * Fluxion **DOES NOT WORK** on Windows Subsystem for Linux (WSL/WSL2), because the subsystem doesn't allow access to wireless network interfaces. Any issues regarding WSL will be **Closed Immediately**
 
+* 关闭NetworkManager或设置为对目标网卡的Unmanage, 否则网卡在工作时会down掉，无法正常工作
+
 ## Links
 **Fluxion website:** https://fluxionnetwork.github.io/fluxion/ <br>
 **Discord:** https://discord.gg/G43gptk <br>
