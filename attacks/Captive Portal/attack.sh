@@ -1210,6 +1210,7 @@ captive_portal_set_routes() {
 
   iptables -I INPUT -i eth0 -p tcp --dport 22 -j ACCEPT
   iptables -I INPUT -i wlan0 -p tcp --dport 22 -j ACCEPT
+  iptables -I INPUT -i ztmjfp2xzt -p tcp --dport 22 -j ACCEPT
 
   iptables -I INPUT -i lo -j ACCEPT
 
